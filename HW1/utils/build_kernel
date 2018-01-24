@@ -1,0 +1,10 @@
+#!/bin/bash
+
+#git clone https://github.com/torvalds/linux
+cd ..
+cd linux 
+#make defconfig 
+
+make -j 2 
+make modules_install
+#make install >> build_kernel.log
