@@ -1,0 +1,1 @@
+cmd_/home/joyce/Documents/APES/HW2/Problem5/module-problem5/problem5_module.ko := ld -r -m elf_x86_64 -T ./scripts/module-common.lds --build-id  -o /home/joyce/Documents/APES/HW2/Problem5/module-problem5/problem5_module.ko /home/joyce/Documents/APES/HW2/Problem5/module-problem5/problem5_module.o /home/joyce/Documents/APES/HW2/Problem5/module-problem5/problem5_module.mod.o ;  true
