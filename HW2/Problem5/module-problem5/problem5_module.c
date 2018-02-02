@@ -43,7 +43,7 @@ static int problem5_module_entry(void)
   printk(KERN_INFO "the count time is : %d\n", count);
   printk(KERN_ALERT "ALERT: Registering the module!\n");
   
-  setup_timer(&my_timer, my_timer_callback, 0);
+  setup_timer(&my_timer, my_timer_callback, 0); //timer_setup() in 4.15
   add_timer(&my_timer);
 
   return 0;
