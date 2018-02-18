@@ -26,6 +26,18 @@ const char * filename = "./output.txt";
 static void * task1(void *arg);
 static void * task2(void *arg);
 
+struct thread_info
+{
+  //uint32_t number; 
+  FILE * FH_p;
+};
+
+struct Node
+{
+  char *c;
+  struct count *next;
+}*head;
+
 struct periodic_info {
   int sig;
   sigset_t alarm_sig;
@@ -79,18 +91,6 @@ static void wait_period(struct periodic_info *info)
   int sig;
   sigwait(&(info->alarm_sig), &sig);
 }
-
-struct thread_info
-{
-  //uint32_t number; 
-  FILE * FH_p;
-};
-
-struct Node
-{
-  char *c;
-  struct count *next;
-}*head;
 
 void signal_handler(int arg)
 {
