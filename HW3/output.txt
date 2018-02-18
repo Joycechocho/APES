@@ -1,26 +1,41 @@
-Master: PPID: 1714 PID: 5124 TID:5124
+Master: PPID: 1714 PID: 5161 TID:5161
 
-Master: Creating Thread with timestamp: 686
+Master: Creating Thread with timestamp: 639
 Master: Default stack size: 8388608
-Thread1: Entered Thread1 with timestamp: 773
-Thread1 Linux Thread ID:5125
+Thread1: Entered Thread1 with timestamp: 791
+Thread1 Linux Thread ID:5162
 
-Thread1 self() pthread ID: 139721031452416
+Thread1 self() pthread ID: 139783495759616
 Thread1: q has  3 occurence
 Thread1: x has  3 occurence
 Thread1: z has  3 occurence
-Thread1: Exited Thread1 with timestamp: 1692
-Master: Thread returned with timestamp: 4002
+Thread1: Exited Thread1 with timestamp: 1333
+Master: Thread returned with timestamp: 7400
+Thread2 Linux Thread ID:5163
 
-Thread2 Linux Thread ID:5126
-
-Thread2 self() pthread ID: 139721023059712
-The current CPU utilization is 0.025253
-The current CPU utilization is 0.030457
+Thread2 self() pthread ID: 139783487366912
+The current CPU utilization is 0.034826
+The current CPU utilization is 0.045918
+The current CPU utilization is 0.086735
+The current CPU utilization is 0.129534
+The current CPU utilization is 0.090909
+The current CPU utilization is 0.035533
+The current CPU utilization is 0.025126
+The current CPU utilization is 0.030612
+The current CPU utilization is 0.030151
+The current CPU utilization is 0.020408
+The current CPU utilization is 0.035354
+The current CPU utilization is 0.025381
+The current CPU utilization is 0.034826
+The current CPU utilization is 0.030303
+The current CPU utilization is 0.045685
+The current CPU utilization is 0.025126
+The current CPU utilization is 0.030303
 The current CPU utilization is 0.087179
-The current CPU utilization is 0.051020
-The current CPU utilization is 0.035714
-The current CPU utilization is 0.035714
+The current CPU utilization is 0.041237
 The current CPU utilization is 0.040404
-The current CPU utilization is 0.056410
-Enter USR2 signal handler
+The current CPU utilization is 0.020408
+The current CPU utilization is 0.045918
+The current CPU utilization is 0.040816
+The current CPU utilization is 0.045685
+Enter USR1 signal handler

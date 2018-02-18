@@ -75,8 +75,15 @@ void signal_handler(int arg)
     //fclose(ptr->FH_p);
   }else if(arg==SIGUSR2)
   {
-  printf("EXIT!");
+  printf("EXIT2");
   fprintf(ptr->FH_p, "Enter USR2 signal handler\n");
+  fclose(ptr->FH_p);
+  pthread_cancel(thread1);
+  pthread_cancel(thread2);
+  }else if(arg==SIGUSR1)
+  {
+  printf("EXIT1");
+  fprintf(ptr->FH_p, "Enter USR1 signal handler\n");
   fclose(ptr->FH_p);
   pthread_cancel(thread1);
   pthread_cancel(thread2);
