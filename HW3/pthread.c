@@ -134,7 +134,7 @@ static void * task2 (void *arg)
     loadavg=((b[0]+b[1]+b[2])-(a[0]+a[1]+a[2]))/((b[0]+b[1]+b[2]+b[3])-(a[0]+a[1]+a[2]+a[3]));
     fprintf(FH_p, "The current CPU utilization is %Lf\n", loadavg);
     printf("The current CPU utilization is %Lf\n",loadavg);
- 
+    fflush(FH_p);
   }
   t=clock();
   fprintf(FH_p, "Thread2: Exited Thread2 with timestamp: %d\n", (int)t);
