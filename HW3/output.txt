@@ -1,0 +1,18 @@
+Master: PPID: 1714 PID: 1894 TID:1894
+
+Master: Creating Thread with timestamp: 705
+Master: Default stack size: 8388608
+Thread1: Entered Thread1 with timestamp: 919
+Thread1 Linux Thread ID:1895
+
+Thread1 self() pthread ID: 140529910023936
+Thread1: number 1234
+Thread1: reversed number 4321
+Thread1: Exited Thread1 with timestamp: 923
+Thread2: Entered Thread2 with timestamp: 955
+Thread2 Linux Thread ID:1896
+
+Thread2 self() pthread ID: 140529901631232
+The current CPU utilization is 0.020101
+Thread2: Exited Thread2 with timestamp: 1224
+Master: Thread returned with timestamp: 1289
