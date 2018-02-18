@@ -38,6 +38,45 @@ struct Node
   struct count *next;
 }*head;
 
+void signal_handler(int arg)
+{
+  struct thread_info *ptr;
+  ptr = malloc(sizeof(struct thread_info));
+  ptr->FH_p=fopen("output.txt","a");
+  if(arg==SIGINT)
+  {
+    printf("receive INT signal:  ");
+    fprintf(ptr->FH_p,"Enter INT signal handler\n");
+    fflush(ptr->FH_p);
+  }else if(arg==SIGUSR2)
+  {
+    printf("receive USR2 signal");
+    fprintf(ptr->FH_p, "Enter USR2 signal handler\n");
+    fclose(ptr->FH_p);
+    pthread_cancel(thread1);
+    pthread_cancel(thread2);
+  }else if(arg==SIGUSR1)
+  {
+    printf("receive USR1 signal");
+    fprintf(ptr->FH_p, "Enter USR1 signal handler\n");
+    fclose(ptr->FH_p);
+    pthread_cancel(thread1);
+    pthread_cancel(thread2);
+  }
+}
+
+void push(struct thread_info **head_ref, char data)
+{
+  struct Node* new_node=(struct Node*) malloc(sizeof(struct Node));
+  new_node->c=data; 
+  new_node->next=(*head_ref);
+  (*head_ref)=new_node;
+  if(!isalpha(new_node->c))
+  {
+    return;
+  }
+  counts[(int)(tolower(new_node->c)-'a')]++;
+}
 struct periodic_info {
   int sig;
   sigset_t alarm_sig;
@@ -91,49 +130,6 @@ static void wait_period(struct periodic_info *info)
   int sig;
   sigwait(&(info->alarm_sig), &sig);
 }
-
-void signal_handler(int arg)
-{
-  struct thread_info *ptr;
-  ptr = malloc(sizeof(struct thread_info));
-  ptr->FH_p=fopen("output.txt","a");
-  if(arg==SIGINT)
-  {
-    printf("receive INT signal:  ");
-    fprintf(ptr->FH_p,"Enter INT signal handler\n");
-    fflush(ptr->FH_p);
-  }else if(arg==SIGUSR2)
-  {
-    printf("receive USR2 signal");
-    fprintf(ptr->FH_p, "Enter USR2 signal handler\n");
-    fclose(ptr->FH_p);
-    pthread_cancel(thread1);
-    pthread_cancel(thread2);
-  }else if(arg==SIGUSR1)
-  {
-    printf("receive USR1 signal");
-    fprintf(ptr->FH_p, "Enter USR1 signal handler\n");
-    fclose(ptr->FH_p);
-    pthread_cancel(thread1);
-    pthread_cancel(thread2);
-  }
-}
-
-clock_t t;
-
-void push(struct thread_info **head_ref, char data)
-{
-  struct Node* new_node=(struct Node*) malloc(sizeof(struct Node));
-  new_node->c=data; 
-  new_node->next=(*head_ref);
-  (*head_ref)=new_node;
-  if(!isalpha(new_node->c))
-  {
-    return;
-  }
-  counts[(int)(tolower(new_node->c)-'a')]++;
-}
-
 static void * task1 (void *arg)
 {
   char str[BUFFER_SIZE];
