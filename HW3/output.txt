@@ -1,29 +1,30 @@
-Master: PPID: 1714 PID: 4127 TID:4127
+Master: PPID: 1714 PID: 4923 TID:4923
 
-Master: Creating Thread with timestamp: 546
+Master: Creating Thread with timestamp: 622
 Master: Default stack size: 8388608
-Thread1: Entered Thread1 with timestamp: 686
-Thread1 Linux Thread ID:4128
+Thread1: Entered Thread1 with timestamp: 958
+Thread1 Linux Thread ID:4924
 
-Thread1 self() pthread ID: 139772364035840
+Thread1 self() pthread ID: 139959217760000
 Thread1: q has  3 occurence
 Thread1: x has  3 occurence
 Thread1: z has  3 occurence
-Thread1: Exited Thread1 with timestamp: 1127
-Thread2: Entered Thread2 with timestamp: 1159
-Thread2 Linux Thread ID:4129
+Thread1: Exited Thread1 with timestamp: 1493
+Thread2: Entered Thread2 with timestamp: 695
+Thread2 Linux Thread ID:4925
 
-Thread2 self() pthread ID: 139772355643136
-The current CPU utilization is 0.040201
+Thread2 self() pthread ID: 139959209367296
+The current CPU utilization is 0.065000
+The current CPU utilization is 0.091837
+The current CPU utilization is 0.045685
+The current CPU utilization is 0.055556
+The current CPU utilization is 0.060606
+The current CPU utilization is 0.055556
+The current CPU utilization is 0.045685
+The current CPU utilization is 0.046154
+The current CPU utilization is 0.045918
+The current CPU utilization is 0.045918
+The current CPU utilization is 0.040404
 The current CPU utilization is 0.035354
-The current CPU utilization is 0.020202
-The current CPU utilization is 0.020101
 The current CPU utilization is 0.035176
-The current CPU utilization is 0.040609
-The current CPU utilization is 0.095477
-The current CPU utilization is 0.046392
-The current CPU utilization is 0.030928
-The current CPU utilization is 0.040816
-The current CPU utilization is 0.030303
-The current CPU utilization is 0.030457
-The current CPU utilization is 0.040609
+The current CPU utilization is 0.041451

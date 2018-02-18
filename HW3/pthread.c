@@ -15,6 +15,8 @@
 #define NUM_THREADS 2
 #define INTERVAL 100
 
+pthread_t thread1, thread2;
+
 void TimerStop(int signum)
 {
   printf("Stop Timer");
@@ -63,11 +65,16 @@ void signal_handler(int arg)
   struct thread_info *ptr;
   ptr = malloc(sizeof(struct thread_info));
   ptr->FH_p=fopen("output.txt","a");
+  printf("receive INT signal:  ");
   //FILE *fp;
   //fp=fopen("signal_output.txt", "w");
-  fprintf(ptr->FH_p,"enter signal handler...threads closed");
+  fprintf(ptr->FH_p,"Enter INT signal handler\n");
+  fflush(ptr->FH_p);
   fclose(ptr->FH_p);
-  signal(SIGSEGV, signal_handler);
+  //pthread_cancel(thread1);
+  //pthread_cancel(thread2);
+  //signal(SIGINT, signal_handler);
+  //signal(SIGSEGV, signal_handler);
 }
 
 clock_t t;
@@ -146,23 +153,27 @@ static void * task1 (void *arg)
   fprintf(FH_p, "Thread1: Exited Thread1 with timestamp: %d\n", (int)t );
 
   fflush(FH_p);
+  //fclose(FH_p);
 }
 
 static void * task2 (void *arg)
 {
   char str[BUFFER_SIZE];
   uint64_t temp=0;
-  struct thread_info *tinfo = (struct thread_info*)arg;
-  FILE * FH_p = tinfo->FH_p;
+  //struct thread_info *tinfo = (struct thread_info*)arg;
+  //FILE * FH_p = tinfo->FH_p;
+  struct thread_info *ptr;
+  ptr = malloc(sizeof(struct thread_info));
+  ptr->FH_p=fopen("output.txt","a");
 
   pid_t tid = syscall(SYS_gettid);
   t=clock();
-  fprintf(FH_p, "Thread2: Entered Thread2 with timestamp: %d\n", (int)t);
+  fprintf(ptr->FH_p, "Thread2: Entered Thread2 with timestamp: %d\n", (int)t);
   snprintf(str, sizeof(str), "Thread2 Linux Thread ID:%d\n", tid);
   printf("Thread2 ID: %d\n",tid);
-  fprintf(FH_p, "%s\n", str);
+  fprintf(ptr->FH_p, "%s\n", str);
   //fprintf(FH_p, "Thread2: tid: %ld\b", tinfo->tid);
-  fprintf(FH_p, "Thread2 self() pthread ID: %ld\n", pthread_self());
+  fprintf(ptr->FH_p, "Thread2 self() pthread ID: %ld\n", pthread_self());
 
   TimerSet(INTERVAL);;
   while(1)
@@ -182,13 +193,14 @@ static void * task2 (void *arg)
     fclose(fp);
    
     loadavg=((b[0]+b[1]+b[2])-(a[0]+a[1]+a[2]))/((b[0]+b[1]+b[2]+b[3])-(a[0]+a[1]+a[2]+a[3]));
-    fprintf(FH_p, "The current CPU utilization is %Lf\n", loadavg);
+    fprintf(ptr->FH_p, "The current CPU utilization is %Lf\n", loadavg);
     printf("The current CPU utilization is %Lf\n",loadavg);
-    fflush(FH_p);
+    fflush(ptr->FH_p);
+    //fclose(FH_p);
   }
   t=clock();
-  fprintf(FH_p, "Thread2: Exited Thread2 with timestamp: %d\n", (int)t);
-  fflush(FH_p);
+  fprintf(ptr->FH_p, "Thread2: Exited Thread2 with timestamp: %d\n", (int)t);
+  fflush(ptr->FH_p);
 }
 
 void main()
@@ -221,6 +233,7 @@ void main()
   }  
 
   signal(SIGSEGV, signal_handler);
+  signal(SIGINT, signal_handler);
 
   /* Start Threading */
   t=clock();
@@ -233,7 +246,7 @@ void main()
   pthread_attr_getstacksize(&attr, &stack);
   fprintf(FH_p, "Master: Default stack size: %ld\n", stack);
   
-  pthread_t thread1, thread2;
+  
 
   if(pthread_create(&thread1, NULL, task1, (void*)tinfo))
   {
