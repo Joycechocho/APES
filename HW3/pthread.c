@@ -65,16 +65,22 @@ void signal_handler(int arg)
   struct thread_info *ptr;
   ptr = malloc(sizeof(struct thread_info));
   ptr->FH_p=fopen("output.txt","a");
-  printf("receive INT signal:  ");
-  //FILE *fp;
-  //fp=fopen("signal_output.txt", "w");
-  fprintf(ptr->FH_p,"Enter INT signal handler\n");
-  fflush(ptr->FH_p);
+  if(arg==SIGINT)
+  {
+    printf("receive INT signal:  ");
+    //FILE *fp;
+    //fp=fopen("signal_output.txt", "w");
+    fprintf(ptr->FH_p,"Enter INT signal handler\n");
+    fflush(ptr->FH_p);
+    //fclose(ptr->FH_p);
+  }else if(arg==SIGUSR2)
+  {
+  printf("EXIT!");
+  fprintf(ptr->FH_p, "Enter USR2 signal handler\n");
   fclose(ptr->FH_p);
-  //pthread_cancel(thread1);
-  //pthread_cancel(thread2);
-  //signal(SIGINT, signal_handler);
-  //signal(SIGSEGV, signal_handler);
+  pthread_cancel(thread1);
+  pthread_cancel(thread2);
+  }
 }
 
 clock_t t;
@@ -234,6 +240,8 @@ void main()
 
   signal(SIGSEGV, signal_handler);
   signal(SIGINT, signal_handler);
+  signal(SIGUSR1, signal_handler);
+  signal(SIGUSR2, signal_handler);
 
   /* Start Threading */
   t=clock();
