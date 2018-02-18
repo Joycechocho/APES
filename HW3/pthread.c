@@ -7,6 +7,8 @@
 #include <sys/time.h>
 #include <time.h>
 #include <signal.h>
+#include <assert.h>
+
 
 
 #define BUFFER_SIZE (64)
@@ -49,22 +51,46 @@ struct thread_info
   FILE * FH_p;
 };
 
+int counts[26]={0};
+struct Node
+{
+  char *c;
+  struct count *next;
+}*head;
+
 void signal_handler(int arg)
 {
-  FILE *fp;
-  fp=fopen("signal_output.txt", "w");
-  fprintf(fp,"enter signal handler...threads closed");
-  fclose(fp);
+  struct thread_info *ptr;
+  ptr = malloc(sizeof(struct thread_info));
+  ptr->FH_p=fopen("output.txt","a");
+  //FILE *fp;
+  //fp=fopen("signal_output.txt", "w");
+  fprintf(ptr->FH_p,"enter signal handler...threads closed");
+  fclose(ptr->FH_p);
   signal(SIGSEGV, signal_handler);
 }
 
 clock_t t;
 
+void push(struct thread_info **head_ref, char data)
+{
+  struct Node* new_node=(struct Node*) malloc(sizeof(struct Node));
+  new_node->c=data; 
+  new_node->next=(*head_ref);
+  (*head_ref)=new_node;
+  if(!isalpha(new_node->c))
+  {
+    return;
+  }
+  counts[(int)(tolower(new_node->c)-'a')]++;
+}
+
 static void * task1 (void *arg)
 {
   char str[BUFFER_SIZE];
-  uint64_t temp=0;
+  //uint64_t temp=0;
   struct thread_info *tinfo = (struct thread_info*)arg;
+  long len;
   FILE * FH_p = tinfo->FH_p;
 
   t=clock();
@@ -81,16 +107,40 @@ static void * task1 (void *arg)
   fprintf(FH_p, "%s\n", str);
   //fprintf(FH_p, "Thread1: tid: %ld\b", tinfo->tid);
   fprintf(FH_p, "Thread1 self() pthread ID: %ld\n", pthread_self());
-  fprintf(FH_p, "Thread1: number %d\n", tinfo->number);
-
-  while(tinfo->number)
+  
+  FILE *fp =fopen("Valentinesday.txt", "r");
+  assert(fp);
+  fseek(fp, 0, SEEK_END);
+  len=ftell(fp);
+  fseek(fp, 0, SEEK_SET);
+  char *buf =(char *) malloc(__size_t (len+1));
+  buf[len]='\0';
+  fread(buf, 1, __size_t len, fp);
+  fclose(fp);
+  
+  struct Node* head=NULL;
+  struct Node *temp;
+  temp=malloc(sizeof(struct Node)*len);
+  temp->c=buf;
+  for(int i=0;i<len;i++)
   {
-    temp *= 10;
-    temp += tinfo->number % 10;
-    tinfo->number /= 10;
+    push(&head, temp->c[i]);
   }
+  for(int i=0;i<26;i++)
+  {
+    if(counts[i]==3)
+    fprintf(FH_p, "Thread1: %c has %2d occurence\n", i+'a', counts[i]);
+  }
+  //fprintf(FH_p, "Thread1: number %d\n", tinfo->number);
+
+  //while(tinfo->number)
+  //{
+  //  temp *= 10;
+  //  temp += tinfo->number % 10;
+  //  tinfo->number /= 10;
+  //}
   //temp = temp / 0;
-  fprintf(FH_p, "Thread1: reversed number %ld\n", temp);
+  //fprintf(FH_p, "Thread1: reversed number %ld\n", temp);
 
   t=clock();
   fprintf(FH_p, "Thread1: Exited Thread1 with timestamp: %d\n", (int)t );
