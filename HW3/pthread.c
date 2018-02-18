@@ -9,51 +9,83 @@
 #include <signal.h>
 #include <assert.h>
 
-
-
 #define BUFFER_SIZE (64)
 #define NUM_THREADS 2
 #define INTERVAL 100
 
 pthread_t thread1, thread2;
 
-void TimerStop(int signum)
-{
-  printf("Stop Timer");
-}
+int counts[26]={0};
 
-void TimerSet(int interval)
-{
-  struct itimerval it_val;
-  it_val.it_value.tv_sec = interval/1000000;
-  it_val.it_value.tv_usec=0;
-  it_val.it_interval.tv_sec=0;
-  it_val.it_interval.tv_usec=0;
+clock_t t; //Caculate the timestamp when entering/exiting the threads
 
-  if(signal(SIGALRM, TimerStop)==SIG_ERR)
-  {
-    perror("Unable to catch SIGALRM");
-    exit(1); 
-  }
-  if(setitimer(ITIMER_REAL, &it_val, NULL) == -1)
-  {
-    perror("Error calling setitimer()");
-    exit(1);
-  }  
-}
+static int thread_1_count;
+static int thread_2_count;
 
 const char * filename = "./output.txt";
 static void * task1(void *arg);
 static void * task2(void *arg);
 
+struct periodic_info {
+  int sig;
+  sigset_t alarm_sig;
+};
+
+/* Set the POSIX timers to wake thread 2 up */
+static int make_periodic(int unsigned period, struct periodic_info *info)
+{
+  static int next_sig;
+  int ret;
+  unsigned int ns;
+  unsigned int sec;
+  struct sigevent sigev;
+  timer_t timer_id;
+  struct itimerspec itval;
+
+  /* Initialise next_sig first time through. We can't use static
+  initialisation because SIGRTMIN is a function call, not a constant */
+  if (next_sig == 0)
+    next_sig = SIGRTMIN;
+  /* Check that we have not run out of signals */
+  if (next_sig > SIGRTMAX)
+    return -1;
+  info->sig = next_sig;
+  next_sig++;
+  /* Create the signal mask that will be used in wait_period */
+  sigemptyset(&(info->alarm_sig));
+  sigaddset(&(info->alarm_sig), info->sig);
+
+  /* Create a timer that will generate the signal we have chosen */
+  sigev.sigev_notify = SIGEV_SIGNAL;
+  sigev.sigev_signo = info->sig;
+  sigev.sigev_value.sival_ptr = (void *)&timer_id;
+  ret = timer_create(CLOCK_MONOTONIC, &sigev, &timer_id);
+  if (ret == -1)
+    return ret;
+
+  /* Make the timer periodic */
+  sec = period / 1000000;
+  ns = (period - (sec * 1000000)) * 1000;
+  itval.it_interval.tv_sec = sec;
+  itval.it_interval.tv_nsec = ns;
+  itval.it_value.tv_sec = sec;
+  itval.it_value.tv_nsec = ns;
+  ret = timer_settime(timer_id, 0, &itval, NULL);
+  return ret;
+}
+
+static void wait_period(struct periodic_info *info)
+{
+  int sig;
+  sigwait(&(info->alarm_sig), &sig);
+}
+
 struct thread_info
 {
-  //pthread_t tid;
-  uint32_t number; 
+  //uint32_t number; 
   FILE * FH_p;
 };
 
-int counts[26]={0};
 struct Node
 {
   char *c;
@@ -68,25 +100,22 @@ void signal_handler(int arg)
   if(arg==SIGINT)
   {
     printf("receive INT signal:  ");
-    //FILE *fp;
-    //fp=fopen("signal_output.txt", "w");
     fprintf(ptr->FH_p,"Enter INT signal handler\n");
     fflush(ptr->FH_p);
-    //fclose(ptr->FH_p);
   }else if(arg==SIGUSR2)
   {
-  printf("EXIT2");
-  fprintf(ptr->FH_p, "Enter USR2 signal handler\n");
-  fclose(ptr->FH_p);
-  pthread_cancel(thread1);
-  pthread_cancel(thread2);
+    printf("receive USR2 signal");
+    fprintf(ptr->FH_p, "Enter USR2 signal handler\n");
+    fclose(ptr->FH_p);
+    pthread_cancel(thread1);
+    pthread_cancel(thread2);
   }else if(arg==SIGUSR1)
   {
-  printf("EXIT1");
-  fprintf(ptr->FH_p, "Enter USR1 signal handler\n");
-  fclose(ptr->FH_p);
-  pthread_cancel(thread1);
-  pthread_cancel(thread2);
+    printf("receive USR1 signal");
+    fprintf(ptr->FH_p, "Enter USR1 signal handler\n");
+    fclose(ptr->FH_p);
+    pthread_cancel(thread1);
+    pthread_cancel(thread2);
   }
 }
 
@@ -108,26 +137,21 @@ void push(struct thread_info **head_ref, char data)
 static void * task1 (void *arg)
 {
   char str[BUFFER_SIZE];
-  //uint64_t temp=0;
   struct thread_info *tinfo = (struct thread_info*)arg;
   long len;
   FILE * FH_p = tinfo->FH_p;
-
   t=clock();
+  struct Node* head=NULL;
+  struct Node *temp;
+
+  /* Get the Info of Thread1 */
   fprintf(FH_p, "Thread1: Entered Thread1 with timestamp: %d\n", (int)t);
-
-
-
-  
   pid_t tid = syscall(SYS_gettid);
-  
-
-
   snprintf(str, sizeof(str), "Thread1 Linux Thread ID:%d\n", tid);
   fprintf(FH_p, "%s\n", str);
-  //fprintf(FH_p, "Thread1: tid: %ld\b", tinfo->tid);
   fprintf(FH_p, "Thread1 self() pthread ID: %ld\n", pthread_self());
   
+  /* Track the number of occurence */
   FILE *fp =fopen("Valentinesday.txt", "r");
   assert(fp);
   fseek(fp, 0, SEEK_END);
@@ -137,9 +161,7 @@ static void * task1 (void *arg)
   buf[len]='\0';
   fread(buf, 1, __size_t len, fp);
   fclose(fp);
-  
-  struct Node* head=NULL;
-  struct Node *temp;
+
   temp=malloc(sizeof(struct Node)*len);
   temp->c=buf;
   for(int i=0;i<len;i++)
@@ -151,46 +173,40 @@ static void * task1 (void *arg)
     if(counts[i]==3)
     fprintf(FH_p, "Thread1: %c has %2d occurence\n", i+'a', counts[i]);
   }
-  //fprintf(FH_p, "Thread1: number %d\n", tinfo->number);
 
-  //while(tinfo->number)
-  //{
-  //  temp *= 10;
-  //  temp += tinfo->number % 10;
-  //  tinfo->number /= 10;
-  //}
-  //temp = temp / 0;
-  //fprintf(FH_p, "Thread1: reversed number %ld\n", temp);
-
+  /* Exit Thread1 */
   t=clock();
   fprintf(FH_p, "Thread1: Exited Thread1 with timestamp: %d\n", (int)t );
 
   fflush(FH_p);
-  //fclose(FH_p);
 }
 
 static void * task2 (void *arg)
 {
   char str[BUFFER_SIZE];
   uint64_t temp=0;
-  //struct thread_info *tinfo = (struct thread_info*)arg;
-  //FILE * FH_p = tinfo->FH_p;
   struct thread_info *ptr;
   ptr = malloc(sizeof(struct thread_info));
   ptr->FH_p=fopen("output.txt","a");
 
+  /* Get Info of Thread2 */
   pid_t tid = syscall(SYS_gettid);
   t=clock();
   fprintf(ptr->FH_p, "Thread2: Entered Thread2 with timestamp: %d\n", (int)t);
   snprintf(str, sizeof(str), "Thread2 Linux Thread ID:%d\n", tid);
   printf("Thread2 ID: %d\n",tid);
   fprintf(ptr->FH_p, "%s\n", str);
-  //fprintf(FH_p, "Thread2: tid: %ld\b", tinfo->tid);
   fprintf(ptr->FH_p, "Thread2 self() pthread ID: %ld\n", pthread_self());
-
-  TimerSet(INTERVAL);;
+  
+  /* Set up the POSIX timer in thread 2*/ 
+  struct periodic_info info;
+  make_periodic(100000, &info);
+  
   while(1)
   {
+    thread_2_count++;
+    wait_period(&info);
+
     /* Caculate CPU Utilization */
     long double a[4], b[4], loadavg;
     char dump[50];
@@ -209,11 +225,13 @@ static void * task2 (void *arg)
     fprintf(ptr->FH_p, "The current CPU utilization is %Lf\n", loadavg);
     printf("The current CPU utilization is %Lf\n",loadavg);
     fflush(ptr->FH_p);
-    //fclose(FH_p);
   }
+
+  /* Exit Thread2 */
   t=clock();
   fprintf(ptr->FH_p, "Thread2: Exited Thread2 with timestamp: %d\n", (int)t);
   fflush(ptr->FH_p);
+  return NULL;
 }
 
 void main()
@@ -230,7 +248,6 @@ void main()
     exit(1);
   }
   
- 
   FH_p = fopen(filename, "w");
   if(!FH_p)
   {
@@ -255,13 +272,16 @@ void main()
   fprintf(FH_p, "Master: Creating Thread with timestamp: %d\n", (int)t);
   
   tinfo->FH_p = FH_p;
-  tinfo->number = 1234;
   size_t stack;
   pthread_attr_init(&attr);
   pthread_attr_getstacksize(&attr, &stack);
   fprintf(FH_p, "Master: Default stack size: %ld\n", stack);
   
-  
+  sigset_t alarm_sig;
+  sigemptyset(&alarm_sig);
+  for (int i = SIGRTMIN; i <= SIGRTMAX; i++)
+  sigaddset(&alarm_sig, i);
+  sigprocmask(SIG_BLOCK, &alarm_sig, NULL);
 
   if(pthread_create(&thread1, NULL, task1, (void*)tinfo))
   {
@@ -275,7 +295,9 @@ void main()
     exit(1);
   }
 
-  pthread_kill(thread1, SIGSEGV);
+  sleep(3);
+  fprintf(FH_p, "Master: Thread 2 has %d iterations\n", thread_2_count);
+  //pthread_kill(thread1, SIGSEGV);
 
   if(pthread_join(thread1, NULL))
   {
@@ -298,7 +320,7 @@ void main()
   {
     printf("ERROR: Could not close file %s\n", filename);
   }
-  return;
+  return 0;
 }
 
 
