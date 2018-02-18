@@ -9,9 +9,9 @@
 #include <signal.h>
 #include <assert.h>
 
-#define BUFFER_SIZE (64)
-#define NUM_THREADS 2
-#define INTERVAL 100
+#define BUFFER_SIZE   (64)
+#define NUM_THREADS   2
+#define INTERVAL      100
 
 pthread_t thread1, thread2;
 
@@ -137,19 +137,22 @@ void push(struct thread_info **head_ref, char data)
 static void * task1 (void *arg)
 {
   char str[BUFFER_SIZE];
-  struct thread_info *tinfo = (struct thread_info*)arg;
+  //struct thread_info *tinfo = (struct thread_info*)arg;
   long len;
-  FILE * FH_p = tinfo->FH_p;
+  //FILE * FH_p = tinfo->FH_p;
+  struct thread_info *ptr;
+  ptr = malloc(sizeof(struct thread_info));
+  ptr->FH_p=fopen("output.txt","a");
   t=clock();
   struct Node* head=NULL;
   struct Node *temp;
 
   /* Get the Info of Thread1 */
-  fprintf(FH_p, "Thread1: Entered Thread1 with timestamp: %d\n", (int)t);
+  fprintf(ptr->FH_p, "Thread1: Entered Thread1 with timestamp: %d\n", (int)t);
   pid_t tid = syscall(SYS_gettid);
   snprintf(str, sizeof(str), "Thread1 Linux Thread ID:%d\n", tid);
-  fprintf(FH_p, "%s\n", str);
-  fprintf(FH_p, "Thread1 self() pthread ID: %ld\n", pthread_self());
+  fprintf(ptr->FH_p, "%s\n", str);
+  fprintf(ptr->FH_p, "Thread1 self() pthread ID: %ld\n", pthread_self());
   
   /* Track the number of occurence */
   FILE *fp =fopen("Valentinesday.txt", "r");
@@ -171,14 +174,14 @@ static void * task1 (void *arg)
   for(int i=0;i<26;i++)
   {
     if(counts[i]==3)
-    fprintf(FH_p, "Thread1: %c has %2d occurence\n", i+'a', counts[i]);
+    fprintf(ptr->FH_p, "Thread1: %c has %2d occurence\n", i+'a', counts[i]);
   }
 
   /* Exit Thread1 */
   t=clock();
-  fprintf(FH_p, "Thread1: Exited Thread1 with timestamp: %d\n", (int)t );
+  fprintf(ptr->FH_p, "Thread1: Exited Thread1 with timestamp: %d\n", (int)t );
 
-  fflush(FH_p);
+  fflush(ptr->FH_p);
 }
 
 static void * task2 (void *arg)
@@ -198,6 +201,7 @@ static void * task2 (void *arg)
   fprintf(ptr->FH_p, "%s\n", str);
   fprintf(ptr->FH_p, "Thread2 self() pthread ID: %ld\n", pthread_self());
   
+  fflush(ptr->FH_p);
   /* Set up the POSIX timer in thread 2*/ 
   struct periodic_info info;
   make_periodic(100000, &info);
@@ -222,8 +226,8 @@ static void * task2 (void *arg)
     fclose(fp);
    
     loadavg=((b[0]+b[1]+b[2])-(a[0]+a[1]+a[2]))/((b[0]+b[1]+b[2]+b[3])-(a[0]+a[1]+a[2]+a[3]));
-    fprintf(ptr->FH_p, "The current CPU utilization is %Lf\n", loadavg);
-    printf("The current CPU utilization is %Lf\n",loadavg);
+    fprintf(ptr->FH_p, "Thread2: The current CPU utilization is %Lf\n", loadavg);
+    printf("Thread2: The current CPU utilization is %Lf\n",loadavg);
     fflush(ptr->FH_p);
   }
 
@@ -248,7 +252,7 @@ void main()
     exit(1);
   }
   
-  FH_p = fopen(filename, "w");
+  FH_p = fopen(filename, "a");
   if(!FH_p)
   {
     printf("ERROR: Could not open file %s for writing\n", filename);
@@ -269,7 +273,7 @@ void main()
 
   /* Start Threading */
   t=clock();
-  fprintf(FH_p, "Master: Creating Thread with timestamp: %d\n", (int)t);
+  fprintf(FH_p, "Master: Creating 2 Threads. The timestamp is: %d\n", (int)t);
   
   tinfo->FH_p = FH_p;
   size_t stack;
@@ -296,7 +300,7 @@ void main()
   }
 
   sleep(3);
-  fprintf(FH_p, "Master: Thread 2 has %d iterations\n", thread_2_count);
+  //fprintf(FH_p, "Master: Thread 2 has %d iterations\n", thread_2_count);
   //pthread_kill(thread1, SIGSEGV);
 
   if(pthread_join(thread1, NULL))

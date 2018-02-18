@@ -1,41 +1,23 @@
-Master: PPID: 1714 PID: 6049 TID:6049
+Thread2: Entered Thread2 with timestamp: 1098
+Thread2 Linux Thread ID:6502
 
-Master: Creating Thread with timestamp: 719
-Master: Default stack size: 8388608
-Thread1: Entered Thread1 with timestamp: 799
-Thread1 Linux Thread ID:6050
+Thread2 self() pthread ID: 139752801355520
+Thread1: Entered Thread1 with timestamp: 1302
+Thread1 Linux Thread ID:6501
 
-Thread1 self() pthread ID: 140161402132224
+Thread1 self() pthread ID: 139752809748224
 Thread1: q has  3 occurence
 Thread1: x has  3 occurence
 Thread1: z has  3 occurence
-Thread1: Exited Thread1 with timestamp: 1575
-Master: Thread 2 has 3 iterations
-Master: Thread returned with timestamp: 8906
-ad2 self() pthread ID: 140161393739520
-The current CPU utilization is 0.010101
-The current CPU utilization is 0.107143
-The current CPU utilization is 0.056410
-The current CPU utilization is 0.085000
-The current CPU utilization is 0.050505
-The current CPU utilization is 0.082051
-The current CPU utilization is 0.075377
-The current CPU utilization is 0.055838
-The current CPU utilization is 0.044776
-The current CPU utilization is 0.035176
-The current CPU utilization is 0.045455
-The current CPU utilization is 0.025381
-The current CPU utilization is 0.065657
-The current CPU utilization is 0.040000
-The current CPU utilization is 0.025126
-The current CPU utilization is 0.020305
-The current CPU utilization is 0.035176
-The current CPU utilization is 0.020305
-The current CPU utilization is 0.025253
-The current CPU utilization is 0.035176
-The current CPU utilization is 0.020305
-The current CPU utilization is 0.030151
-The current CPU utilization is 0.035176
-The current CPU utilization is 0.035000
-The current CPU utilization is 0.020000
-Enter USR1 signal handler
+Thread1: Exited Thread1 with timestamp: 2026
+Thread2: The current CPU utilization is 0.005102
+Thread2: The current CPU utilization is 0.096447
+Thread2: The current CPU utilization is 0.041026
+Thread2: The current CPU utilization is 0.051282
+Thread2: The current CPU utilization is 0.035176
+Enter USR2 signal handler
+Master: PPID: 1714 PID: 6500 TID:6500
+
+Master: Creating 2 Threads. The timestamp is: 977
+Master: Default stack size: 8388608
+Master: Thread returned with timestamp: 4138
