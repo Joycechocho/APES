@@ -11,6 +11,32 @@
 
 #define BUFFER_SIZE (64)
 #define NUM_THREADS 2
+#define INTERVAL 100
+
+void TimerStop(int signum)
+{
+  printf("Stop Timer");
+}
+
+void TimerSet(int interval)
+{
+  struct itimerval it_val;
+  it_val.it_value.tv_sec = interval/1000000;
+  it_val.it_value.tv_usec=0;
+  it_val.it_interval.tv_sec=0;
+  it_val.it_interval.tv_usec=0;
+
+  if(signal(SIGALRM, TimerStop)==SIG_ERR)
+  {
+    perror("Unable to catch SIGALRM");
+    exit(1); 
+  }
+  if(setitimer(ITIMER_REAL, &it_val, NULL) == -1)
+  {
+    perror("Error calling setitimer()");
+    exit(1);
+  }  
+}
 
 const char * filename = "./output.txt";
 static void * task1(void *arg);
@@ -83,16 +109,19 @@ static void * task2 (void *arg)
   t=clock();
   fprintf(FH_p, "Thread2: Entered Thread2 with timestamp: %d\n", (int)t);
   snprintf(str, sizeof(str), "Thread2 Linux Thread ID:%d\n", tid);
+  printf("Thread2 ID: %d\n",tid);
   fprintf(FH_p, "%s\n", str);
   //fprintf(FH_p, "Thread2: tid: %ld\b", tinfo->tid);
   fprintf(FH_p, "Thread2 self() pthread ID: %ld\n", pthread_self());
 
-  /* Caculate CPU Utilization */
-  long double a[4], b[4], loadavg;
-  char dump[50];
-  FILE *fp;
-  //for(;;)
-  //{
+  TimerSet(INTERVAL);;
+  while(1)
+  {
+    /* Caculate CPU Utilization */
+    long double a[4], b[4], loadavg;
+    char dump[50];
+    FILE *fp;
+  
     fp = fopen("/proc/stat","r");
     fscanf(fp, "%*s %Lf %Lf %Lf %Lf", &a[0], &a[1], &a[2], &a[3]);
     fclose(fp);
@@ -104,8 +133,9 @@ static void * task2 (void *arg)
    
     loadavg=((b[0]+b[1]+b[2])-(a[0]+a[1]+a[2]))/((b[0]+b[1]+b[2]+b[3])-(a[0]+a[1]+a[2]+a[3]));
     fprintf(FH_p, "The current CPU utilization is %Lf\n", loadavg);
-  //}
-
+    printf("The current CPU utilization is %Lf\n",loadavg);
+ 
+  }
   t=clock();
   fprintf(FH_p, "Thread2: Exited Thread2 with timestamp: %d\n", (int)t);
   fflush(FH_p);
