@@ -9,8 +9,22 @@
 #include <sys/types.h>
 #include <time.h> 
 
+typedef struct _Message_t
+{
+  int8_t message[100];
+  uint8_t led;
+  size_t length;
+}Message_t;
+
 int main(int argc, char *argv[])
 {
+  /* data for communication */
+  Message_t send_message ={0};
+  const char* msg = "This message is sent from p1 to p2";
+  memmove(send_message.message,msg,strlen(msg));
+  send_message.length = strlen(msg);
+  send_message.led = 1; 
+
     int listenfd = 0, connfd = 0;
     struct sockaddr_in serv_addr; 
 
@@ -34,7 +48,7 @@ int main(int argc, char *argv[])
         connfd = accept(listenfd, (struct sockaddr*)NULL, NULL); 
 
         ticks = time(NULL);
-        snprintf(sendBuff, sizeof(sendBuff), "%.24s\r\n", ctime(&ticks));
+        snprintf(sendBuff, sizeof(sendBuff), "String Printing: %s\tLED status: %s\n",send_message.message, send_message.led?"ON":"OFF");
         write(connfd, sendBuff, strlen(sendBuff)); 
 
         close(connfd);
