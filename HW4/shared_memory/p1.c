@@ -1,8 +1,7 @@
-// C program for Consumer process illustrating
-// POSIX shared-memory API.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 #include <fcntl.h>
 #include <sys/shm.h>
 #include <fcntl.h>
@@ -10,38 +9,55 @@
 #include <sys/mman.h>
 #include <unistd.h>
 
+typedef struct _Message_t
+{
+  int8_t message[100];
+  uint8_t led;
+  size_t length;
+}Message_t;
+
 int main()
 {
-    /* the size (in bytes) of shared memory object */
-    const int SIZE = 4096;
+  /* data for communication */
+  Message_t send_message ={0};
+  const char* msg = "This message is sent from p1 to p2";
+  memmove(send_message.message,msg,strlen(msg));
+  send_message.length = strlen(msg);
+  send_message.led = 0;  
  
-    /* name of the shared memory object */
-    const char* name = "OS";
+  /* the size (in bytes) of shared memory object */
+  const int SIZE = 4096;
  
-    /* strings written to shared memory */
-    const char* message_0 = "Hello";
-    const char* message_1 = "Joyce!";
+  /* name of the shared memory object */
+  const char* name = "OS";
  
-    /* shared memory file descriptor */
-    int shm_fd;
+  /* shared memory file descriptor */
+  int shm_fd;
  
-    /* pointer to shared memory obect */
-    void* ptr;
+  /* pointer to shared memory obect */
+  void* ptr;
  
-    /* create the shared memory object */
-    shm_fd = shm_open(name, O_CREAT | O_RDWR, 0666);
+  /* create the shared memory object */
+  shm_fd = shm_open(name, O_CREAT | O_RDWR, 0666);
  
-    /* configure the size of the shared memory object */
-    ftruncate(shm_fd, SIZE);
+  /* configure the size of the shared memory object */
+  ftruncate(shm_fd, SIZE);
  
-    /* memory map the shared memory object */
-    ptr = mmap(0, SIZE, PROT_WRITE, MAP_SHARED, shm_fd, 0);
+  /* memory map the shared memory object */
+  ptr = mmap(0, SIZE, PROT_WRITE, MAP_SHARED, shm_fd, 0);
  
-    /* write to the shared memory object */
-    sprintf(ptr, "%s", message_0);
-    ptr += strlen(message_0);
-    sprintf(ptr, "%s", message_1);
-    ptr += strlen(message_1);
+  /* write to the shared memory object */
+  sprintf(ptr, "String Printing: %s\tLED status: %s\n",
+	send_message.message, send_message.led?"ON":"OFF");
+   
+  sleep(6);
+  
+  /* read from the shared memory object */
+  printf("%s", (char*)ptr);
+  
+  /* remove the shared memory object */
+  shm_unlink(name);
+   
 
     return 0;
 }
