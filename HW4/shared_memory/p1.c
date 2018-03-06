@@ -10,7 +10,6 @@
 #include <sys/mman.h>
 #include <unistd.h>
 
-
 int main()
 {
     /* the size (in bytes) of shared memory object */
@@ -40,9 +39,9 @@ int main()
  
     /* write to the shared memory object */
     sprintf(ptr, "%s", message_0);
- 
     ptr += strlen(message_0);
     sprintf(ptr, "%s", message_1);
     ptr += strlen(message_1);
+
     return 0;
 }

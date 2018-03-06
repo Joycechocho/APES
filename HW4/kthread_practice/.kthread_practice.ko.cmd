@@ -1,0 +1,1 @@
+cmd_/home/joyce/Documents/APES/HW4/kthread_practice/kthread_practice.ko := ld -r -m elf_x86_64 -T ./scripts/module-common.lds --build-id  -o /home/joyce/Documents/APES/HW4/kthread_practice/kthread_practice.ko /home/joyce/Documents/APES/HW4/kthread_practice/kthread_practice.o /home/joyce/Documents/APES/HW4/kthread_practice/kthread_practice.mod.o ;  true
