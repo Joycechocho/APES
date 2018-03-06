@@ -1,13 +1,11 @@
+#include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
-#include <errno.h>
 #include <string.h>
-#include <sys/types.h>
-#include <time.h> 
+#include <unistd.h>
 
 typedef struct _Message_t
 {
@@ -16,42 +14,39 @@ typedef struct _Message_t
   size_t length;
 }Message_t;
 
-int main(int argc, char *argv[])
+void main(void)
 {
   /* data for communication */
   Message_t send_message ={0};
   const char* msg = "This message is sent from p1 to p2";
   memmove(send_message.message,msg,strlen(msg));
   send_message.length = strlen(msg);
-  send_message.led = 1; 
+  send_message.led = 0;  
 
-    int listenfd = 0, connfd = 0;
-    struct sockaddr_in serv_addr; 
+  int s;
+  int var;
 
-    char sendBuff[1025];
-    time_t ticks; 
+  struct sockaddr_in serv_addr;
+  bzero(&serv_addr, sizeof(serv_addr));
+  serv_addr.sin_family = AF_INET;
+  serv_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+  serv_addr.sin_port = htons((u_short) 1234);
 
-    listenfd = socket(AF_INET, SOCK_STREAM, 0);
-    memset(&serv_addr, '0', sizeof(serv_addr));
-    memset(sendBuff, '0', sizeof(sendBuff)); 
+  /* create the socket */
+  s = socket(PF_INET, SOCK_STREAM, 0);
+  connect(s, (struct sockaddr *)&serv_addr, sizeof(serv_addr));
 
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    serv_addr.sin_port = htons(5000); 
+  /* send the message */ 
+  send(s, (char*)&send_message, sizeof(send_message), 0);
 
-    bind(listenfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr)); 
+  sleep(2);
 
-    listen(listenfd, 10); 
+  /* receive the message */ 
+  Message_t reveived_msg = {0};
+  var = read(s, (char*)&reveived_msg, 1024);
+  printf("String Printing: %s\tLED status: %s\n",
+	reveived_msg.message, reveived_msg.led?"ON":"OFF");
 
-    while(1)
-    {
-        connfd = accept(listenfd, (struct sockaddr*)NULL, NULL); 
-
-        ticks = time(NULL);
-        snprintf(sendBuff, sizeof(sendBuff), "String Printing: %s\tLED status: %s\n",send_message.message, send_message.led?"ON":"OFF");
-        write(connfd, sendBuff, strlen(sendBuff)); 
-
-        close(connfd);
-        sleep(1);
-     }
+  /* close the connection */
+  close(s);
 }
