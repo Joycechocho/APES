@@ -1,6 +1,6 @@
 please find the detailed report on D2L
 
-(Below is the compile information and the corresponding directories for each prolem)
+(Below is the compile information and the corresponding directories for each problem)
 
 ### [Problem 2 - 40 pts] (IPC) Multiple Ways to communicate between two processes
 - messages_queues
