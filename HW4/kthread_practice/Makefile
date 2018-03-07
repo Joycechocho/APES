@@ -1,4 +1,3 @@
-#Makefile for the list_kthreads module
 obj-m += kthread_practice.o
 
 
