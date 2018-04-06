@@ -1,1 +1,4 @@
 .DS_Store
+macros.ini_initial
+startup_ccs.c
+target_config.ccxml
