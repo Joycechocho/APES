@@ -1,0 +1,1 @@
+"./blinky.obj" "./startup_ccs.obj" "../blinky_ccs.cmd" -llibc.a -l"/Users/yuch0605/Documents/Appications/ti/SW-TM4C-2.1.4.178/driverlib/ccs/Debug/driverlib.lib" 
