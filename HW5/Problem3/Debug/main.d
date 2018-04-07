@@ -16,7 +16,10 @@ main.obj: /Users/yuch0605/Documents/Appications/ti/ccsv8/tools/compiler/ti-cgt-a
 main.obj: ../driverlib/sysctl.h
 main.obj: ../driverlib/debug.h
 main.obj: ../driverlib/rom.h
+main.obj: ../driverlib/gpio.h
 main.obj: ../driverlib/rom_map.h
+main.obj: ../driverlib/pin_map.h
+main.obj: /Users/yuch0605/workspace_v8/FreeRTOS_tiva_demo/driverlib/inc/hw_memmap.h
 main.obj: ../FreeRTOSConfig.h
 main.obj: /Users/yuch0605/workspace_v8/FreeRTOS_tiva_demo/FreeRTOS/include/FreeRTOS.h
 main.obj: /Users/yuch0605/Documents/Appications/ti/ccsv8/tools/compiler/ti-cgt-arm_18.1.1.LTS/include/stddef.h
@@ -29,6 +32,7 @@ main.obj: /Users/yuch0605/workspace_v8/FreeRTOS_tiva_demo/FreeRTOS/include/task.
 main.obj: /Users/yuch0605/workspace_v8/FreeRTOS_tiva_demo/FreeRTOS/include/list.h
 main.obj: /Users/yuch0605/workspace_v8/FreeRTOS_tiva_demo/FreeRTOS/include/queue.h
 main.obj: /Users/yuch0605/workspace_v8/FreeRTOS_tiva_demo/FreeRTOS/include/semphr.h
+main.obj: /Users/yuch0605/workspace_v8/FreeRTOS_tiva_demo/FreeRTOS/include/timers.h
 
 ../main.c: 
 /Users/yuch0605/Documents/Appications/ti/ccsv8/tools/compiler/ti-cgt-arm_18.1.1.LTS/include/stdint.h: 
@@ -46,7 +50,10 @@ main.obj: /Users/yuch0605/workspace_v8/FreeRTOS_tiva_demo/FreeRTOS/include/semph
 ../driverlib/sysctl.h: 
 ../driverlib/debug.h: 
 ../driverlib/rom.h: 
+../driverlib/gpio.h: 
 ../driverlib/rom_map.h: 
+../driverlib/pin_map.h: 
+/Users/yuch0605/workspace_v8/FreeRTOS_tiva_demo/driverlib/inc/hw_memmap.h: 
 ../FreeRTOSConfig.h: 
 /Users/yuch0605/workspace_v8/FreeRTOS_tiva_demo/FreeRTOS/include/FreeRTOS.h: 
 /Users/yuch0605/Documents/Appications/ti/ccsv8/tools/compiler/ti-cgt-arm_18.1.1.LTS/include/stddef.h: 
@@ -59,3 +66,4 @@ main.obj: /Users/yuch0605/workspace_v8/FreeRTOS_tiva_demo/FreeRTOS/include/semph
 /Users/yuch0605/workspace_v8/FreeRTOS_tiva_demo/FreeRTOS/include/list.h: 
 /Users/yuch0605/workspace_v8/FreeRTOS_tiva_demo/FreeRTOS/include/queue.h: 
 /Users/yuch0605/workspace_v8/FreeRTOS_tiva_demo/FreeRTOS/include/semphr.h: 
+/Users/yuch0605/workspace_v8/FreeRTOS_tiva_demo/FreeRTOS/include/timers.h: 

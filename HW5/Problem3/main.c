@@ -4,12 +4,14 @@
 #include "drivers/pinout.h"
 #include "utils/uartstdio.h"
 
-
 // TivaWare includes
 #include "driverlib/sysctl.h"
 #include "driverlib/debug.h"
 #include "driverlib/rom.h"
+#include "driverlib/gpio.h"
 #include "driverlib/rom_map.h"
+#include "driverlib/pin_map.h"/*supplies GPIO_PIN_x*/
+#include "inc/hw_memmap.h"/*supplies GPIO_PORTx_BASE*/
 
 // FreeRTOS includes
 #include "FreeRTOSConfig.h"
@@ -17,21 +19,38 @@
 #include "task.h"
 #include "queue.h"
 #include "semphr.h"
-
+#include "timers.h"
 
 // Demo Task declarations
 void vTask_1(void *pvParameters);
 void vTask_2(void *pvParameters);
-void demoSerialTask(void *pvParameters);
 
-SemaphoreHandle_t xSem_1, xSem_2;
+int count = 0;
+int LED1_status = 0;
+int LED4_status = 0;
+void timerCallback(TimerHandle_t timing)
+{
+  LED4_status =!  LED4_status;
+  count++;
+  if(count == 2){
+      LED1_status =! LED1_status;
+      count = 0;
+  }
+}
+
+void timerInitialize()
+{
+    TimerHandle_t timing;
+    //  Timer should be having a period of 25ms or 0.25s
+    timing = xTimerCreate("Timer", (250 / portTICK_PERIOD_MS), pdTRUE, (void *)2, timerCallback);
+    xTimerStart(timing, 0);
+}
 
 // Main function
 int main(void)
 {
-    /* Create a binary semaphore */
-    xSem_1 = xSemaphoreCreateBinary();
-    xSem_2 = xSemaphoreCreateBinary();
+
+    timerInitialize();
 
     // Initialize system clock to 120 MHz
     uint32_t output_clock_rate_hz;
@@ -51,11 +70,7 @@ int main(void)
     xTaskCreate(vTask_2, (const portCHAR *)"LEDs",
                 configMINIMAL_STACK_SIZE, NULL, 1, NULL);
 
-    xTaskCreate(demoSerialTask, (const portCHAR *)"Serial",
-                configMINIMAL_STACK_SIZE, NULL, 1, NULL);
-
     /* Start the scheduler. */
-    xSemaphoreGive(xSem_1);
     vTaskStartScheduler();
     return 0;
 }
@@ -66,18 +81,12 @@ void vTask_1(void *pvParameters)
 {
     for (;;)
     {
-        /* Use the semaphore to wait for the event. */
-        xSemaphoreTake(xSem_1, portMAX_DELAY);
-
-        // Turn on LED 1
-        LEDWrite(0x0F, 0x01);
-        vTaskDelay(1000);
-
-        /* Signal task2 to run */
-        xSemaphoreGive(xSem_2);
+        if(LED1_status == 0){
+            GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_1,0x00); //turn off led 1
+        }else{
+            GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_1,0x02); //turn on led 1
+        }
     }
-    /* Should the task implementation ever break out of the above loop, then the task must be deleted */
-    vTaskDelete(NULL);
 }
 
 // Flash the LEDs on the launchpad
@@ -85,31 +94,13 @@ void vTask_2(void *pvParameters)
 {
     for (;;)
     {
-        /* Use the semaphore to wait for the event. */
-        xSemaphoreTake(xSem_2, portMAX_DELAY);
-
-        // Turn on LED 4
-        LEDWrite(0x0F, 0x08);
-        vTaskDelay(1000);
-
-        xSemaphoreGive(xSem_1);
+        if(LED4_status == 0){
+            GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_0,0x00); //turn off led 4
+        }else{
+            GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_0,0x01);//turn on led 4
+        }
     }
-    /* Should the task implementation ever break out of the above loop, then the task must be deleted */
-    vTaskDelete(NULL);
-}
 
-// Write text over the Stellaris debug interface UART port
-void demoSerialTask(void *pvParameters)
-{
-    // Set up the UART which is connected to the virtual COM port
-    UARTStdioConfig(0, 57600, SYSTEM_CLOCK);
-
-
-    for (;;)
-    {
-        UARTprintf("\r\nHello, world from FreeRTOS 9.0!");
-        vTaskDelay(5000 / portTICK_PERIOD_MS);
-    }
 }
 
 /*  ASSERT() Error function
